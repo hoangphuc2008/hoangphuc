@@ -1,0 +1,171 @@
+<! DOCTYPE html>
+<htmllang = "en">
+<đầu>
+    <metacharset = "UTF-8">
+    <metahttp-equiv="X-UA-Tương thích"content="IE=edge">
+    <metaname = "viewport"content = "width = device-width, tỷ lệ ban đầu = 1.0">
+    <title>Tài liệu</chức danh>
+    <phong cách>
+        lều {
+            vị trí: tuyệt đối;
+            Trái:0;
+            Hàng đầu:0;
+            Chiều rộng: 100%;
+            Chiều cao: 100%;
+            Màu nền: RGB (0,0,0, .2);
+        }
+    </phong cách>
+</đầu>
+<thân thể>
+    <id canvas = "trái tim">< / canvas>
+
+    <kịch bản>
+        cửa sổ. requestAnimationFrame =
+            cửa sổ. __requestAnimationFrame||
+            cửa sổ. requestAnimationFrame||
+            cửa sổ. webkitRequestAnimationFrame||
+            cửa sổ. mozRequestAnimationFrame||
+            cửa sổ. oRequestAnimationFrame||
+            cửa sổ. msRequestAnimationFrame||
+            (chức năng () {
+                hàm return (callback, phần tử) {
+                    varlastTime = phần tử. __lastTime;
+                    if(lastTime===không xác định) {
+                        lastTime = 0;
+                    }
+                    varcurrTime = Ngày. bây giờ();
+                    vartimeToCall = Toán học. tối đa (1,33- (currTime-lastTime));
+                    cửa sổ. setTimeout (gọi lại, timeToCall);
+                    yếu tố. __lastTime=currTime+timeToCall;
+                };
+            })();
+        cửa sổ. isDevice = (/ android| WebOS| điện thoại| iPad| iPod| dâu đen| Điện thoại di động| Opera Mini / I. test(((hoa tiêu). userAgent|| hoa tiêu. nhà cung cấp|| cửa sổ. opera)). đếnLowerCase()));
+        varđã tải = false;
+        varinit=hàm () {
+            if (nạp) return;
+            đã tải = true;
+            vardi động = cửa sổ. isDevice;
+            varkoef = di động? 0,5:1;
+            varcanvas = tài liệu. getElementById('trái tim');
+            varctx = canvas. getContext('2d');
+            varwidth = canvas. width=koef*innerWidth;
+            varchiều cao = canvas. chiều cao = koef * innerHeight;
+            varrand=Toán học. ngẫu nhiên;
+            ctx. fillStyle = "rgba (0,0,0,1)";
+            ctx. điềnRect(0,0,chiều rộng,chiều cao);
+
+            varheartPosition = chức năng (rad) {
+                trả về [Math.sin (rad), Math.cos (rad)];
+                return[Toán học. pow (Toán học. sin(rad),3),-(15*Toán học. cos (rad) -5 * Toán học. cos (2 * rad) -2 * Toán. cos (3 * rad) -Toán. COS (4 * rad))];
+            };
+            var scaleAndTranslate=function(pos,sx,sy,dx,dy ) {
+                trở lại[dx+pos[0]*sx,dy+pos[1]*sy];
+            };
+
+            cửa sổ. addEventListener('resize',chức năng () {
+                chiều rộng = canvas. width=koef*innerWidth;
+                chiều cao = canvas. chiều cao = koef * innerHeight;
+                ctx. fillStyle = "rgba (0,0,0,1)";
+                ctx. điềnRect(0,0,chiều rộng,chiều cao);
+            });
+
+            var traceCount = mobile ? 20 : 50;
+            var pointsOrigin = [];
+            var i;
+            var dr = mobile ? 0.3 : 0.1;
+            for (i = 0; i < Math.PI * 2; i += dr) pointsOrigin.push(scaleAndTranslate(heartPosition(i), 210, 13, 0, 0));
+            for (i = 0; i < Math.PI * 2; i += dr) pointsOrigin.push(scaleAndTranslate(heartPosition(i), 150, 9, 0, 0));
+            for (i = 0; i < Math.PI * 2; i += dr) pointsOrigin.push(scaleAndTranslate(heartPosition(i), 90, 5, 0, 0));
+            var heartPointsCount = pointsOrigin.length;
+
+            var targetPoints = [];
+            var pulse = function (kx, ky) {
+                for (i = 0; i < pointsOrigin.length; i++) {
+                    targetPoints[i] = [];
+                    targetPoints[i][0] = kx * pointsOrigin[i][0] + width / 2;
+                    targetPoints[i][1] = ky * pointsOrigin[i][1] + height / 2;
+                }
+            };
+
+            var e = [];
+            for (i = 0; i < heartPointsCount; i++) {
+                var x = rand() * width;
+                var y = rand() * height;
+                e[i] = {
+                    vx: 0,
+                    vy: 0,
+                    R: 2,
+                    speed: rand() + 5,
+                    q: ~~(rand() * heartPointsCount),
+                    D: 2 * (i % 2) - 1,
+                    force: 0.2 * rand() + 0.7,
+                    f: "hsla(0," + ~~(40 * rand() + 60) + "%," + ~~(60 * rand() + 20) + "%,.3)",
+                    trace: []
+                };
+                for (var k = 0; k < traceCount; k++) e[i].trace[k] = { x: x, y: y };
+            }
+
+            var config = {
+                traceK: 0.4,
+                timeDelta: 0.01
+            };
+
+            var time = 0;
+            var loop = function () {
+                var n = -Math.cos(time);
+                pulse((1 + n) * .5, (1 + n) * .5);
+                time += ((Math.sin(time)) < 0 ? 9 : (n > 0.8) ? .2 : 1) * config.timeDelta;
+                ctx.fillStyle = "rgba(0,0,0,.1)";
+                ctx.fillRect(0, 0, width, height);
+                for (i = e.length; i--;) {
+                    var u = e[i];
+                    var q = targetPoints[u.q];
+                    var dx = u.trace[0].x - q[0];
+                    var dy = u.trace[0].y - q[1];
+                    var length = Math.sqrt(dx * dx + dy * dy);
+                    if (10 > length) {
+                        if (0.95 < rand()) {
+                            u.q = ~~(rand() * heartPointsCount);
+                        }
+                        else {
+                            if (0.99 < rand()) {
+                                u.D *= -1;
+                            }
+                            u.q += u.D;
+                            u.q %= heartPointsCount;
+                            if (0 > u.q) {
+                                u.q += heartPointsCount;
+                            }
+                        }
+                    }
+                    u. vx+=-dx/length*u. tốc độ;
+                    u. vy+=-dy/length*u. tốc độ;
+                    u. dấu vết[0]. x+=u. vx;
+                    u. dấu vết[0]. y+=u. VY;
+                    u. vx*=u. bức;
+                    u. vy*=u. bức;
+                    for(k=0; k<u. dấu vết. chiều dài-1;) {
+                        varT=u. dấu vết[k];
+                        varN = u. dấu vết[++k];
+                        N. x- = cấu hình. dấu vếtK*(N.  x-T. x);
+                        N. y- = cấu hình. dấu vếtK*(N.  y-T. y);
+                    }
+                    ctx. fillStyle = u. f·;
+                    for(k=0; k<u. dấu vết. chiều dài; k++) {
+                        ctx. điềnRect(u. dấu vết[k]. x, u. dấu vết[k]. y,1,1);
+                    }
+                }
+                ctx.fillStyle = "rgba (255,255,255,1)";
+                for (i = u.trace.length; i--;) ctx.fillRect(targetPoints[i][0], targetPoints[i][1], 2, 2);
+
+                cửa sổ. requestAnimationFrame (vòng lặp, canvas);
+            };
+            vòng lặp();
+        };
+
+        vars = tài liệu. readyState;
+        if(s==='complete'|| s==='đã nạp'|| s==='tương tác')init();
+        tài liệu khác. addEventListener('DOMContentLoaded',init,false);
+    </kịch bản>
+</thân thể>
+</.html>
